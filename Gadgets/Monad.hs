@@ -1,6 +1,6 @@
 module Gadgets.Monad where
 
--- | @ void_ = return () @
+-- | For monads, @ void_ = return () @.
 -- 
-void_ :: Monad m => m ()
-void_ = return ()
+void_ :: Applicative f => f ()
+void_ = pure ()
