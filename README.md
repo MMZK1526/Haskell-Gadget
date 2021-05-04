@@ -1,2 +1,2 @@
-# Haskell-Gadget
-Lightweight Helper Functions in Haskell
+# Gadget
+Lightweight Helper Functions in Haskell.  
