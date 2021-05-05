@@ -2,27 +2,82 @@
 
 module Gadgets.IO where
 
+import           Control.Monad (liftM2)
 import           Control.Exception (handle, throw)
 import           Data.Maybe (fromJust)
 import           Data.String (IsString(..))
-import           System.IO as IO (hFlush, stdout)
-import           System.IO.Error 
-  (mkIOError, eofErrorType, illegalOperationErrorType, ioeGetErrorType)
+import           System.IO as IO 
+  ( IOMode, Handle, hClose, hFlush, hGetLine, hIsEOF, openFile, stdin, stdout
+  , withFile
+  )
+import           System.IO.Error
+  ( mkIOError, ioeGetFileName, illegalOperationErrorType, isDoesNotExistError
+  , isEOFError
+  )
 import           System.Info (os)
 import           System.Environment (lookupEnv)
 
-import qualified Data.Text as T (Text)
-import qualified Data.Text.IO as TIO (putStr, putStrLn)
+import qualified Data.Text as T (Text, unpack)
+import qualified Data.Text.IO as TIO (hGetLine, putStr, putStrLn)
 
 import           Gadgets.Monad (void_)
 
 type Text = T.Text
 
+-- | Reads all lines from @stdin@, returning a @[String]@.
+--
+getLines :: IO [String]
+getLines = hGetLines stdin
+
+-- | Reads all lines from a @stdin@, returning a @[Text]@.
+--
+getLines' :: IO [Text]
+getLines' = hGetLines' stdin
+
+-- | Reads all lines from a handle, returning a @[String]@.
+--
+hGetLines :: Handle -> IO [String]
+hGetLines hdl = do
+  b <- hIsEOF hdl
+  if b 
+    then return []
+    else liftM2 (:) (hGetLine hdl) (hGetLines hdl)
+
+-- | Reads all lines from a handle, returning a @[Text]@.
+--
+hGetLines' :: Handle -> IO [Text]
+hGetLines' hdl = do
+  b <- hIsEOF hdl
+  if b 
+    then return []
+    else liftM2 (:) (TIO.hGetLine hdl) (hGetLines' hdl)
+
+-- | Specifically handles DNE exceptions.
+--
+handleDNE :: (IOError -> IO a) -> IO a -> IO a
+handleDNE m 
+  = handle $ \e -> if isDoesNotExistError e
+    then m e
+    else throw e
+
+-- | Handles DNE exceptions with the file's full name (with path).
+--
+handleDNEPath :: (Maybe FilePath -> IO a) -> IO a -> IO a
+handleDNEPath m 
+  = handle $ \e -> if isDoesNotExistError e
+    then m $ ioeGetFileName e
+    else throw e
+
+-- | Does nothing on DNE exceptions.
+-- 
+handleDNE_ :: IO () -> IO ()
+handleDNE_ = handleDNE $ const void_
+
 -- | Specifically handles EOF exceptions.
 --
 handleEOF :: (IOError -> IO a) -> IO a -> IO a
 handleEOF m 
-  = handle $ \e -> if ioeGetErrorType e == eofErrorType 
+  = handle $ \e -> if isEOFError e
     then m e
     else throw e
 
@@ -36,22 +91,6 @@ handleEOF_ = handleEOF $ const void_
 handleEOFLn_ :: IO () -> IO ()
 handleEOFLn_ = handleEOF $ const putLn
 
-{-# SPECIALISE homePath :: IO Text #-}
--- | Get the $HOME variable or its equivalence across platforms.
--- Only supports OS X, Windows & Linux.
--- Throws an IllegalOperationError in the case of unsupported OS.
--- 
-homePath :: IsString a => IO a
-homePath = fmap (fromString . fromJust) $ lookupEnv $ case os of
-  "darwin"  -> "HOME"
-  "linux"   -> "HOME"
-  "mingw32" -> "HOMEPATH"
-  _         -> throw $ mkIOError 
-               illegalOperationErrorType 
-               ("This operating system (" ++ os ++ ") is not supported") 
-               Nothing 
-               Nothing
-
 -- | Strictly outputs a @Char@ via @stdout@.
 --      
 putChar' :: Char -> IO ()
@@ -61,10 +100,15 @@ putChar' ch
 -- | Outputs a new line.
 -- 
 putLn :: IO ()
-putLn = TIO.putStrLn ""
+putLn = putStrLn ""
 
 -- | Strictly outputs a @Text@ via @stdout@.
 --      
 putStr' :: Text -> IO ()
 putStr' str 
   = TIO.putStr str >> hFlush stdout
+  
+-- | Similar to @withFile@ but takes a strict @Text@ as file path.
+--
+withFile' :: Text -> IOMode -> (Handle -> IO a) -> IO a
+withFile' = withFile . T.unpack
