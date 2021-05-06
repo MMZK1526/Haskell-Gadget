@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Gadgets.IO where
 
 import           Control.Monad (liftM2)
@@ -11,9 +9,7 @@ import           System.IO as IO
   , withFile
   )
 import           System.IO.Error
-  ( mkIOError, ioeGetFileName, illegalOperationErrorType, isDoesNotExistError
-  , isEOFError
-  )
+  (ioeGetFileName, illegalOperationErrorType, isDoesNotExistError, isEOFError, IOErrorType, mkIOError)
 import           System.Info (os)
 import           System.Environment (lookupEnv)
 
@@ -107,7 +103,17 @@ putLn = putStrLn ""
 putStr' :: Text -> IO ()
 putStr' str 
   = TIO.putStr str >> hFlush stdout
-  
+
+-- | Making and throwing an @IOError@.
+--
+throwIOError :: IOErrorType -> String -> Maybe Handle -> Maybe FilePath -> a
+throwIOError t s h p = throw $ mkIOError t s h p
+
+-- | Making and throwing an @IOError@ without file path and handle.
+--
+throwIOError_ :: IOErrorType -> String -> a
+throwIOError_ t s = throwIOError t s Nothing Nothing
+
 -- | Similar to @withFile@ but takes a strict @Text@ as file path.
 --
 withFile' :: Text -> IOMode -> (Handle -> IO a) -> IO a
