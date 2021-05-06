@@ -24,4 +24,4 @@ cabal.project.local~
 Playground.hs
 .DS_Store
 Playground
-Todo
+Executables/*

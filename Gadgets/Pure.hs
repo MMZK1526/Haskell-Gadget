@@ -1,9 +1,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleInstances #-}
 
 module Gadgets.Pure where
 
-import           Control.Applicative (liftA2)
 import           Control.Monad (ap, filterM, join)
 
 import qualified Data.Text as T
@@ -15,24 +13,11 @@ type Text = T.Text
 instance Show Misete where
   show (Misete a) = show a
 
-instance {-# OVERLAPPABLE #-} (Num a, Applicative m) => Num (m a) where
-  (+)         = liftA2 (+)
-  (-)         = liftA2 (-)
-  (*)         = liftA2 (*)
-  abs         = fmap abs
-  signum      = fmap signum
-  fromInteger = pure . fromInteger
-
-instance {-# OVERLAPPABLE #-} (Fractional a, Applicative m)
-  => Fractional (m a) where
-    (/)          = liftA2 (/)
-    fromRational = pure . fromRational
-
 fibs :: [Integer]
 fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 
 ftext :: (Text -> Text) -> String -> String
-ftext f s = T.unpack $ f $ T.pack s
+ftext = (. T.pack) . (T.unpack .)
 
 powerSet :: [a] -> [[a]]
 powerSet = filterM $ const [True, False]
