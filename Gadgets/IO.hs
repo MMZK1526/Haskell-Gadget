@@ -9,7 +9,9 @@ import           System.IO as IO
   , withFile
   )
 import           System.IO.Error
-  (ioeGetFileName, illegalOperationErrorType, isDoesNotExistError, isEOFError, IOErrorType, mkIOError)
+  ( IOErrorType, ioeGetFileName, illegalOperationErrorType, isDoesNotExistError
+  , isEOFError, mkIOError
+  )
 import           System.Info (os)
 import           System.Environment (lookupEnv)
 

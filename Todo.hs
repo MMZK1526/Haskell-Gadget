@@ -5,7 +5,7 @@
 -- the example in http://learnyouahaskell.com/input-and-output.
 -- Compile the program and run it with argument "help" to see the documentation.
 
-import           Control.Exception (IOException, SomeException, handle)
+import           Control.Exception (IOException, SomeException, handle, finally)
 import           Control.Monad (forM_)
 
 import           System.Directory (renameFile, removeFile)
@@ -111,13 +111,13 @@ remove []            = throwIOError_ userErrorType noPathMsg
 remove (path : nums) = do
   con <- get path
   (tempN, tempH) <- openTempFile "." ".114514.mmzk"
-  handle (\(e :: SomeException) -> 
-    do hClose tempH
-       removeFile tempN
+  finally (handle (\(e :: SomeException) -> 
+    do removeFile tempN
        throwIOError userErrorType notIntMsg Nothing (Just path)) $
     do let ns     = read <$> nums :: [Int]
-       let newCon = fmap snd $ filter ((`notElem` ns) . fst) $ zip [1..] con
+       let newCon = sum ns `seq` 
+                    fmap snd $ filter ((`notElem` ns) . fst) $ zip [1..] con
        TIO.hPutStr tempH $ T.unlines newCon
-       hClose tempH
        removeFile path
-       renameFile tempN path
+       renameFile tempN path) $
+    hClose tempH
