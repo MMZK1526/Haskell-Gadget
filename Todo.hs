@@ -14,7 +14,7 @@ import           System.IO (IOMode(..), hClose, openFile, openTempFile)
 import           System.IO.Error (userErrorType)
 
 import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
+import qualified Data.Text.IO as T
 
 import           Gadgets.IO (Text, hGetLines', throwIOError, throwIOError_)
 import           Gadgets.Pure (ftext)
@@ -78,46 +78,50 @@ main = handle (\(e :: IOException) ->
 
 -- Documentation
 help :: [String] -> IO ()
-help = const $ TIO.putStrLn helpMsg                       
+help = const $ T.putStrLn helpMsg
 
--- Adds a list of to-do items into the file
+-- Add a list of to-do items into the file
 add :: [String] -> IO ()
 add []             = throwIOError_ userErrorType noPathMsg
 add (path : items) = do
   appendFile path ""
   forM_ items $ \i -> appendFile path (i ++ "\n")
 
--- Gets the content of the file
+-- Get the content of the file
 get :: String -> IO [Text]
 get path = do
   hld <- openFile path ReadWriteMode
-  con <- hGetLines' hld 
+  con <- hGetLines' hld
   hClose hld
   return con
 
--- Displays the content of the file
+-- Display the content of the file
 view :: [String] -> IO ()
 view []         = throwIOError_ userErrorType noPathMsg
 view (path : _) = do
   con <- get path
   if null con
     then putStrLn "The file is empty."
-    else TIO.putStr $ T.unlines $
+    else T.putStr $ T.unlines $
          zipWith (\i t -> T.concat [T.pack (show i), " - ", t]) [1..] con
 
--- Removes the items corresponding to the given indices
+-- Remove the items corresponding to the given indices
 remove :: [String] -> IO ()
 remove []            = throwIOError_ userErrorType noPathMsg
 remove (path : nums) = do
   con <- get path
   (tempN, tempH) <- openTempFile "." ".114514.mmzk"
   finally (handle (\(e :: SomeException) -> 
+    -- handle
     do removeFile tempN
        throwIOError userErrorType notIntMsg Nothing (Just path)) $
+    -- try
     do let ns     = read <$> nums :: [Int]
        let newCon = sum ns `seq` 
                     fmap snd $ filter ((`notElem` ns) . fst) $ zip [1..] con
-       TIO.hPutStr tempH $ T.unlines newCon
+       T.hPutStr tempH $ T.unlines newCon
        removeFile path
-       renameFile tempN path) $
+       renameFile tempN path
+    ) $
+    -- finally
     hClose tempH
