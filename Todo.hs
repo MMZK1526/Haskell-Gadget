@@ -109,7 +109,7 @@ view (path : _) = do
 remove :: [String] -> IO ()
 remove []            = throwIOError_ userErrorType noPathMsg
 remove (path : nums) = do
-  con <- get path
+  con            <- get path
   (tempN, tempH) <- openTempFile "." ".114514.mmzk"
   finally (handle (\(e :: SomeException) -> 
     -- handle

@@ -90,6 +90,3 @@ parseLine _ str
 -- Deals with escape characters
 escape :: Text -> Text
 escape = replaceList [("\\", "\\\\"), ("\"", "\\\"")] 
-
-foo = "\"\\\\123\\\\\"\n\
-      \\"\\\\234\\"
