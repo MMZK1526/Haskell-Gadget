@@ -13,7 +13,8 @@ import           System.IO.Error (userErrorType)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
-import           Gadgets.IO (Text, handleEOF_, throwIOError_)
+import           Gadgets.IO (handleEOF_, throwIOError_)
+import           Gadgets.Text (Text, replaceList)
 
 helpMsg :: Text
 helpMsg = "\n    ./BlockString [src.txt] [dest.txt]\n\
@@ -82,6 +83,13 @@ parseIO src dest = do
 -- Add Haskell string literal line separator to the end and the front
 parseLine :: Bool -> Text -> Text
 parseLine True str
-  = T.concat [prefix, str, suffix] 
+  = T.concat [prefix, escape str, suffix] 
 parseLine _ str
-  = T.concat [str, suffix] 
+  = T.concat [escape str, suffix] 
+
+-- Deals with escape characters
+escape :: Text -> Text
+escape = replaceList [("\\", "\\\\"), ("\"", "\\\"")] 
+
+foo = "\"\\\\123\\\\\"\n\
+      \\"\\\\234\\"
