@@ -17,7 +17,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
 import           Gadgets.IO (Text, hGetLines', throwIOError, throwIOError_)
-import           Gadgets.Pure (ftext)
+import           Gadgets.Text (ftext)
 
 -- Table of commands
 dispatch :: [(String, [String] -> IO ())]

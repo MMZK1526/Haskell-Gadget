@@ -16,9 +16,6 @@ instance Show Misete where
 fibs :: [Integer]
 fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 
-ftext :: (Text -> Text) -> String -> String
-ftext = (. T.pack) . (T.unpack .)
-
 powerSet :: [a] -> [[a]]
 powerSet = filterM $ const [True, False]
 
