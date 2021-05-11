@@ -4,12 +4,12 @@ import           Control.Monad (liftM2)
 import           System.IO as IO 
   (IOMode, Handle, hFlush, hIsEOF, stdin, stdout, withFile)
 
-import qualified Data.Text as T (Text, unpack)
-import qualified Data.Text.IO as T (hGetLine, putStr, putStrLn)
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 
 type Text = T.Text
 
--- | Reads all lines from a @stdin@, returning a @[Text]@.
+-- | Reads all lines from @stdin@, returning a @[Text]@.
 --
 getLines' :: IO [Text]
 getLines' = hGetLines' stdin

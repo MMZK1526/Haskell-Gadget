@@ -16,4 +16,4 @@ ftext = (. T.pack) . (T.unpack .)
 -- Pre: The needles must be non-empty and disjoint.
 -- 
 replaceList :: [(Text, Text)] -> Text -> Text
-replaceList = flip (foldl' $ \text (orig, rep) -> T.replace orig rep text)
+replaceList = flip (foldl' $ flip $ uncurry T.replace)
