@@ -25,11 +25,6 @@ hGetLines hdl = do
     then return []
     else liftM2 (:) (hGetLine hdl) (hGetLines hdl)
 
--- | Handle any @IOError@.
--- 
-handleIO :: (IOError -> IO a) -> IO a -> IO a
-handleIO = handle
-
 -- | Specifically handles DNE exceptions.
 --
 handleDNE :: (IOError -> IO a) -> IO a -> IO a
@@ -65,6 +60,11 @@ handleEOF_ = handleEOF $ const void_
 -- 
 handleEOFLn_ :: IO () -> IO ()
 handleEOFLn_ = handleEOF $ const putLn
+
+-- | Handle any @IOError@.
+-- 
+handleIO :: (IOError -> IO a) -> IO a -> IO a
+handleIO = handle
 
 -- | Strictly outputs a @Char@ via @stdout@.
 --      

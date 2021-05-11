@@ -4,7 +4,7 @@
 -- the example in http://learnyouahaskell.com/input-and-output.
 -- Compile the program and run it with argument "help" to see the documentation.
 
-import           Control.Exception (finally)
+import           Control.Exception (handle, finally)
 import           Control.Monad (forM_)
 
 import           System.Directory (renameFile, removeFile)
