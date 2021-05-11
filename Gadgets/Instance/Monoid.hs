@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Gadgets.Monoid where
+module Gadgets.Instance.Monoid where
 
 instance {-# OVERLAPPABLE #-} (Num a) => Semigroup a where
   (<>) = mappend
