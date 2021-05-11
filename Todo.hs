@@ -16,8 +16,9 @@ import           System.IO.Error (userErrorType)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
-import           Gadgets.IO (Text, hGetLines', throwIOError, throwIOError_)
-import           Gadgets.Text (ftext)
+import           Gadgets.IO (throwIOError, throwIOError_)
+import           Gadgets.Text (Text, ftext)
+import           Gadgets.Text.IO (hGetLines')
 
 -- Table of commands
 dispatch :: [(String, [String] -> IO ())]

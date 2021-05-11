@@ -2,35 +2,19 @@ module Gadgets.IO where
 
 import           Control.Monad (liftM2)
 import           Control.Exception (handle, throw)
-import           Data.Maybe (fromJust)
-import           Data.String (IsString(..))
 import           System.IO as IO 
-  ( IOMode, Handle, hClose, hFlush, hGetLine, hIsEOF, openFile, stdin, stdout
-  , withFile
-  )
+  (Handle, hClose, hFlush, hGetLine, hIsEOF, stdin, stdout)
 import           System.IO.Error
   ( IOErrorType, ioeGetFileName, illegalOperationErrorType, isDoesNotExistError
   , isEOFError, mkIOError
   )
-import           System.Info (os)
-import           System.Environment (lookupEnv)
-
-import qualified Data.Text as T (Text, unpack)
-import qualified Data.Text.IO as TIO (hGetLine, putStr, putStrLn)
 
 import           Gadgets.Monad (void_)
-
-type Text = T.Text
 
 -- | Reads all lines from @stdin@, returning a @[String]@.
 --
 getLines :: IO [String]
 getLines = hGetLines stdin
-
--- | Reads all lines from a @stdin@, returning a @[Text]@.
---
-getLines' :: IO [Text]
-getLines' = hGetLines' stdin
 
 -- | Reads all lines from a handle, returning a @[String]@.
 --
@@ -40,15 +24,6 @@ hGetLines hdl = do
   if b 
     then return []
     else liftM2 (:) (hGetLine hdl) (hGetLines hdl)
-
--- | Reads all lines from a handle, returning a @[Text]@.
---
-hGetLines' :: Handle -> IO [Text]
-hGetLines' hdl = do
-  b <- hIsEOF hdl
-  if b 
-    then return []
-    else liftM2 (:) (TIO.hGetLine hdl) (hGetLines' hdl)
 
 -- | Specifically handles DNE exceptions.
 --
@@ -61,10 +36,7 @@ handleDNE m
 -- | Handles DNE exceptions with the file's full name (with path).
 --
 handleDNEPath :: (Maybe FilePath -> IO a) -> IO a -> IO a
-handleDNEPath m 
-  = handle $ \e -> if isDoesNotExistError e
-    then m $ ioeGetFileName e
-    else throw e
+handleDNEPath = handleDNE . (. ioeGetFileName)
 
 -- | Does nothing on DNE exceptions.
 -- 
@@ -100,12 +72,6 @@ putChar' ch
 putLn :: IO ()
 putLn = putStrLn ""
 
--- | Strictly outputs a @Text@ via @stdout@.
---      
-putStr' :: Text -> IO ()
-putStr' str 
-  = TIO.putStr str >> hFlush stdout
-
 -- | Making and throwing an @IOError@.
 --
 throwIOError :: IOErrorType -> String -> Maybe Handle -> Maybe FilePath -> a
@@ -115,8 +81,3 @@ throwIOError t s h p = throw $ mkIOError t s h p
 --
 throwIOError_ :: IOErrorType -> String -> a
 throwIOError_ t s = throwIOError t s Nothing Nothing
-
--- | Similar to @withFile@ but takes a strict @Text@ as file path.
---
-withFile' :: Text -> IOMode -> (Handle -> IO a) -> IO a
-withFile' = withFile . T.unpack
