@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-import           Control.Exception (IOException, finally, handle)
+import           Control.Exception (finally)
 import           Control.Monad (forever)
 import           System.Environment (getArgs)
 import           System.IO
@@ -13,7 +13,7 @@ import           System.IO.Error (userErrorType)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
-import           Gadgets.IO (handleEOF_, throwIOError_)
+import           Gadgets.IO (handleEOF_, handleIO, throwIOError_)
 import           Gadgets.Text (Text, replaceList)
 
 helpMsg :: Text
@@ -42,7 +42,7 @@ prefix = "\\"
 suffix = "\\n\\\n"
 
 main :: IO ()
-main = handle (\(e :: IOException) ->
+main = handleIO (\e ->
   do print e
      putStrLn "Type \"todo help\" to see the help doc.") $
   do cargs <- getArgs

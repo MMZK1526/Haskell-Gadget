@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 -- This is a simple to-do list management terminal line application, based on
 -- the example in http://learnyouahaskell.com/input-and-output.
 -- Compile the program and run it with argument "help" to see the documentation.
 
-import           Control.Exception (IOException, SomeException, handle, finally)
+import           Control.Exception (finally)
 import           Control.Monad (forM_)
 
 import           System.Directory (renameFile, removeFile)
@@ -16,7 +15,7 @@ import           System.IO.Error (userErrorType)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
-import           Gadgets.IO (throwIOError, throwIOError_)
+import           Gadgets.IO (handleIO, throwIOError, throwIOError_)
 import           Gadgets.Text (Text, ftext)
 import           Gadgets.Text.IO (hGetLines')
 
@@ -67,7 +66,7 @@ notIntMsg = "The arguments must be integers"
 -- The second do block is run first. When an exception occurs, it is handled by
 -- the first do block.
 main :: IO ()
-main = handle (\(e :: IOException) ->
+main = handleIO (\e ->
   do print e
      putStrLn "Type \"todo help\" to see the help doc.") $
   do cargs <- getArgs
@@ -112,7 +111,7 @@ remove []            = throwIOError_ userErrorType noPathMsg
 remove (path : nums) = do
   con            <- get path
   (tempN, tempH) <- openTempFile "." ".114514.mmzk"
-  finally (handle (\(e :: SomeException) -> 
+  finally (handleIO (const $ 
     -- handle
     do removeFile tempN
        throwIOError userErrorType notIntMsg Nothing (Just path)) $

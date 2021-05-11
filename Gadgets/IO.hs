@@ -1,7 +1,7 @@
 module Gadgets.IO where
 
 import           Control.Monad (liftM2)
-import           Control.Exception (handle, throw)
+import           Control.Exception (handle, throw, SomeException)
 import           System.IO as IO 
   (Handle, hClose, hFlush, hGetLine, hIsEOF, stdin, stdout)
 import           System.IO.Error
@@ -24,6 +24,11 @@ hGetLines hdl = do
   if b 
     then return []
     else liftM2 (:) (hGetLine hdl) (hGetLines hdl)
+
+-- | Handle any @IOError@.
+-- 
+handleIO :: (IOError -> IO a) -> IO a -> IO a
+handleIO = handle
 
 -- | Specifically handles DNE exceptions.
 --
