@@ -3,11 +3,9 @@
 
 module Gadgets.URef where
 
-import           Control.Monad.ST (ST)
 import           Data.Array.IO (IOUArray)
 import           Data.Array.ST
     (MArray, STUArray, newArray, readArray, writeArray)
-import           Control.Monad.ST.Unsafe (unsafeSTToIO)
 
 -- | Type alias for the unboxed reference, which is implemented as an unboxed
 -- @IOUArray@ (with a length of 1).
