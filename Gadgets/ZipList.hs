@@ -1,11 +1,14 @@
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Gadgets.ZipList where
 
-import           Control.Applicative (ZipList(..))
+import qualified Control.Applicative as A (ZipList(..))
 import           GHC.Exts (IsList(..))
+
+type ZipList = A.ZipList
 
 instance IsList (ZipList a) where
   type Item (ZipList a) = a
-  fromList              = ZipList
-  toList                = getZipList
+  fromList              = A.ZipList
+  toList                = A.getZipList
