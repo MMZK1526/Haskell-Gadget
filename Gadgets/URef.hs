@@ -17,7 +17,7 @@ type IOURef e = IOUArray Int e
 -- | Type alias for the unboxed reference, which is implemented as an unboxed
 -- @STUArray@ (with a length of 1).
 -- 
-type URef s e = STUArray s Int e
+type STURef s e = STUArray s Int e
 
 -- | Allocates a new reference to the given value.
 -- 
@@ -38,5 +38,5 @@ readURef = flip readArray 0
 
 -- | Overwrites the value the reference refers to.
 -- 
-writeURef ::MArray a e m => a Int e -> e -> m ()
+writeURef :: MArray a e m => a Int e -> e -> m ()
 writeURef = flip writeArray 0
