@@ -1,13 +1,11 @@
 module Gadgets.IO where
 
 import           Control.Monad (liftM2)
-import           Control.Exception (handle, throw, SomeException)
+import           Control.Exception (handle, throw)
 import           System.IO as IO 
-  (Handle, hClose, hFlush, hGetLine, hIsEOF, stdin, stdout)
+  (Handle, hFlush, hGetLine, hIsEOF, stdin, stdout)
 import           System.IO.Error
-  ( IOErrorType, ioeGetFileName, illegalOperationErrorType, isDoesNotExistError
-  , isEOFError, mkIOError
-  )
+  (IOErrorType, ioeGetFileName, isDoesNotExistError, isEOFError, mkIOError)
 
 import           Gadgets.Monad (void_)
 
