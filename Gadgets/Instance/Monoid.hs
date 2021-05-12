@@ -15,12 +15,12 @@ newtype Sum a = Sum { getSum :: a } deriving Show
 newtype Product a = Product { getProduct :: a } deriving Show
 
 instance Wrapper Sum where
-  unwrap (Sum x) = x
-  wrap           = Sum
+  unwrap = getSum
+  wrap   = Sum
 
 instance Wrapper Product where
-  unwrap (Product x) = x
-  wrap               = Product
+  unwrap = getProduct
+  wrap   = Product
 
 instance Num a => (Semigroup (Sum a)) where
   (<>) = liftM2 (+)
