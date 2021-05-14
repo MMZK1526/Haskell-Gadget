@@ -73,6 +73,12 @@ putChar' :: Char -> IO ()
 putChar' ch
   = putChar ch >> hFlush stdout
 
+-- | Strictly outputs a @String@ via @stdout@.
+--      
+putStr' :: String -> IO ()
+putStr' str 
+  = putStr str >> hFlush stdout
+
 -- | Outputs a new line.
 -- 
 putLn :: IO ()
