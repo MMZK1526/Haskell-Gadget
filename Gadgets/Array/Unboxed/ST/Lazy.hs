@@ -65,3 +65,19 @@ arrST !? i = do
   if i < inf || i > sup
     then return Nothing
     else Just <$> A.readArray arrST i
+
+-- | Update a value in the array.
+-- Example: @ arrST =: 3 $ 5 @ sets the third element to five.
+-- It will do nothing if the index is out of bound.
+-- 
+infixl 3 =:
+(=:) :: (IArray UArray a, MArray (STUArray s) a (ST s)) 
+     => STUArray s Int a 
+     -> Int 
+     -> a 
+     -> ST s ()
+(=:) arrST i e = do
+  (inf, sup) <- A.getBounds arrST
+  if i < inf || i > sup
+    then return ()
+    else A.writeArray arrST i e
