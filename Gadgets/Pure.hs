@@ -4,11 +4,7 @@ module Gadgets.Pure where
 
 import           Control.Monad (ap, filterM, join)
 
-import qualified Data.Text as T
-
 data Misete = forall a. Show a => Misete a
-
-type Text = T.Text
 
 instance Show Misete where
   show (Misete a) = show a

@@ -65,7 +65,10 @@ handleIO :: (IOError -> IO a) -> IO a -> IO a
 handleIO = handle
 
 -- | Strictly outputs a @Char@ via @stdout@.
---      
+-- Use the traditional @putChar@ unless you want every character to appear
+-- instantly; this clears the buffer for every character input and is very
+-- inefficient.
+-- 
 putChar' :: Char -> IO ()
 putChar' ch
   = putChar ch >> hFlush stdout
@@ -81,6 +84,6 @@ throwIOError :: IOErrorType -> String -> Maybe Handle -> Maybe FilePath -> a
 throwIOError t s h p = throw $ mkIOError t s h p
 
 -- | Making and throwing an @IOError@ without file path and handle.
---
+-- 
 throwIOError_ :: IOErrorType -> String -> a
 throwIOError_ t s = throwIOError t s Nothing Nothing
