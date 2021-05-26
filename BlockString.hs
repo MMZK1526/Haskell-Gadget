@@ -21,12 +21,12 @@ helpMsg = "\n    ./BlockString [src.txt] [dest.txt]\n\
           \Reads the source file as a string and parse it into a multi-line Haskell String.\n\
           \One can copy the texts in the destination file straight into a Haskell source code as a String literal.\n\n\
           \    Example: \n\
-          \echo \"我卢本伟枪法招式灵活\n\
+          \> echo \"我卢本伟枪法招式灵活\n\
           \活到最后就是你的罪过\n\
           \锅的摆放构造取决于我\n\
           \我的子弹出膛无人能躲\" > in.txt\n\
-          \./BlockString in.txt out.txt\n\
-          \cat out.txt\n\
+          \> ./BlockString in.txt out.txt\n\
+          \> cat out.txt\n\
           \\"我卢本伟枪法招式灵活\\n\\\n\
           \\\活到最后就是你的罪过\\n\\\n\
           \\\锅的摆放构造取决于我\\n\\\n\
@@ -44,7 +44,7 @@ suffix = "\\n\\\n"
 main :: IO ()
 main = handleIO (\e ->
   do print e
-     putStrLn "Type \"todo help\" to see the help doc.") $
+     putStrLn "Type \"blockstring help\" to see the help doc.") $
   do cargs <- getArgs
      case cargs of
        ["help"]       -> help

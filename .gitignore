@@ -25,3 +25,4 @@ Playground.hs
 .DS_Store
 Playground
 Executables/*
+Makefile

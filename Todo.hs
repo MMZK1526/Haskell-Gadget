@@ -36,15 +36,15 @@ helpMsg =
   \    remove: ./Todo remove [filename.txt] [num 1] [num 2] ... [num n]\n\
   \Removes the items in the file corresponding to the given indices.\n\n\
   \    Example: \n\
-  \$ ./Todo add foo.txt \"Manchester United\" \"Chelsea\" \"Nottingham Forest\" \"Aston Villa\" \"Liverpool\"\n\
-  \$ ./Todo view foo.txt\n\
+  \> ./Todo add foo.txt \"Manchester United\" \"Chelsea\" \"Nottingham Forest\" \"Aston Villa\" \"Liverpool\"\n\
+  \> ./Todo view foo.txt\n\
   \1 - Manchester United\n\
   \2 - Chelsea\n\
   \3 - Nottingham Forest\n\
   \4 - Aston Villa\n\
   \5 - Liverpool\n\
-  \$ ./Todo remove foo.txt 3 4\n\
-  \$ ./Todo view foo.txt\n\
+  \> ./Todo remove foo.txt 3 4\n\
+  \> ./Todo view foo.txt\n\
   \1 - Manchester United\n\
   \2 - Chelsea\n\
   \3 - Liverpool\n"
