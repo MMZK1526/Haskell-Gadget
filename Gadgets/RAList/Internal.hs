@@ -96,7 +96,7 @@ update (RAList ts) f i = RAList $ go ts i
 update' :: RAList a -> (a -> a) -> Int -> RAList a
 update' = (. ap seq) . update
 
--- | Prepending an element to a @RAList@.
+-- | Prepends an element to a @RAList@.
 --
 -- We can prove that the amortised cost of "cons" is O(1):
 --
