@@ -8,8 +8,10 @@ module Gadgets.RAList (
 import           Gadgets.RAList.Internal 
   (RAList(..), empty, fromList, head, modify, singleton, tail, toList, update, 
   update', (!), (!?), (><))
+import           Data.Foldable (fold)
 import           Gadgets.RAList.IsList ()
 import           Prelude hiding (head, tail)
+import Control.Monad
 
 instance Functor RAList where
   fmap _ Empty     = Empty
@@ -26,3 +28,11 @@ instance Semigroup (RAList e) where
 
 instance Monoid (RAList e) where
   mempty = Empty
+
+instance Monad RAList where
+  xs >>= f = fold $ f <$> xs
+
+foo :: RAList Int -> RAList Int
+foo xs = do
+  x <- xs
+  fromList [x + 1, x + 2]
