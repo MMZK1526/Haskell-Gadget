@@ -124,7 +124,8 @@ raSplit (RAList ts) = second RAList <$> go Nothing ts
   where
     go (Just (Leaf a)) ts      = Just (a, ts)
     go (Just (Tree _ t t')) ts = go (Just t) (Just t' : ts)
-    go Nothing (Just t : ts)   = go (Just t) ts
+    go Nothing [Just t]        = go (Just t) []
+    go Nothing (Just t : ts)   = go (Just t) (Nothing : ts)
     go Nothing (Nothing : ts)  = go Nothing ts
     go _ _                     = Nothing
 
