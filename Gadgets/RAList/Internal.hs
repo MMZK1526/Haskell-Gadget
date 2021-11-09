@@ -23,7 +23,7 @@ pattern Empty :: RAList a
 pattern Empty = RAList []
 
 -- | A bidirectional pattern synonym for a non-empty RAList. Equivalent to
--- (:) for ordinary lists.
+-- (:) for ordinary lists. Amortised O(1).
 infixr 5 :<
 pattern (:<) :: a -> RAList a -> RAList a
 pattern x :< xs <- (raView -> x :<: xs)
