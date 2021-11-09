@@ -3,10 +3,11 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Gadgets.RAList.Internal 
-  (RAList(Empty, (:<)), empty, fromList, head, singleton, tail, toList, update, 
-  (!), (!?)
+  (RAList(Empty, (:<)), empty, fromList, head, modify, singleton, tail, toList,
+  update, update', (!), (!?)
 ) where
 
+import           Control.Monad (ap)
 import           Data.Bifunctor (second)
 import           Data.Foldable (Foldable(..))
 import           Data.Maybe (fromJust, isJust)
@@ -71,18 +72,27 @@ infixl 8 !?
         s = size t
     go _              _ = Nothing
 
--- | Updates the RAList at the given index. If the index is out of bound,
--- nothing happens.
-update :: RAList a -> Int -> a -> RAList a
-update (RAList ts) i x = RAList $ go ts i
+-- | Modifies the RAList at the given index. If the index is out of bound,
+-- nothing happens. O(log n).
+modify :: RAList a -> Int -> a -> RAList a
+modify = ((. const) .) . flip . update
+
+-- | Updatesthe RAList at the given index by an updating function. If the index
+-- is out of bound, nothing happens. O(log n).
+update :: RAList a -> (a -> a) -> Int -> RAList a
+update (RAList ts) f i = RAList $ go ts i
   where
     go (Nothing : ts) i = Nothing : go ts i
     go (Just t  : ts) i
-      | i < s     = Just (treeUpdate t i x) : ts
+      | i < s     = Just (treeUpdate t f i) : ts
       | otherwise = Just t : go ts (i - s)
       where
         s = size t
     go _              _ = []
+
+-- | The strict version of "update". O(log n).
+update' :: RAList a -> (a -> a) -> Int -> RAList a
+update' = (. ap seq) . update
 
 -- | Prepending an element to a @RAList@.
 -- 
@@ -142,12 +152,12 @@ indexAt (Tree _ l r) i
 indexAt _            _ = undefined
 
 -- | Updates the ith element of the Tree.
-treeUpdate :: Tree a -> Int -> a -> Tree a
-treeUpdate (Leaf _)     0 x = Leaf x
+treeUpdate :: Tree a -> (a -> a) -> Int -> Tree a
+treeUpdate (Leaf a)     f 0 = Leaf $ f a
 treeUpdate (Leaf a)     _ _ = Leaf a
-treeUpdate (Tree n l r) i x
-  | i < ls    = Tree n (treeUpdate l i x) r
-  | otherwise = Tree n l (treeUpdate r (i - ls) x)
+treeUpdate (Tree n l r) f i
+  | i < ls    = Tree n (treeUpdate l f i) r
+  | otherwise = Tree n l (treeUpdate r f (i - ls))
   where
     ls = size l
 
