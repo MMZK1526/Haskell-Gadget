@@ -20,3 +20,9 @@ instance Applicative RAList where
 
   Empty <*> _      = Empty
   (f :< fs) <*> xs = fmap f xs >< (fs <*> xs)
+
+instance Semigroup (RAList e) where
+  (<>) = (><)
+
+instance Monoid (RAList e) where
+  mempty = Empty
