@@ -36,7 +36,7 @@ instance Foldable RAList where
 
 -- | An empty RAList.
 empty :: RAList a
-empty = RAList []
+empty = Empty
 
 -- | Gets the first element from a RAList. Amortised O(1).
 head :: RAList a -> a
