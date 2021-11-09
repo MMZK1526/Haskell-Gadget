@@ -11,7 +11,6 @@ import           Gadgets.RAList.Internal
 import           Data.Foldable (fold)
 import           Gadgets.RAList.IsList ()
 import           Prelude hiding (head, tail)
-import Control.Monad
 
 instance Functor RAList where
   fmap _ Empty     = Empty
