@@ -31,8 +31,3 @@ instance Monoid (RAList e) where
 
 instance Monad RAList where
   xs >>= f = fold $ f <$> xs
-
-foo :: RAList Int -> RAList Int
-foo xs = do
-  x <- xs
-  fromList [x + 1, x + 2]
