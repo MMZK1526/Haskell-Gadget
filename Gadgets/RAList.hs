@@ -14,3 +14,9 @@ import           Prelude hiding (head, tail)
 instance Functor RAList where
   fmap _ Empty     = Empty
   fmap f (x :< xs) = f x :< fmap f xs
+
+instance Applicative RAList where
+  pure = (:< Empty)
+
+  Empty <*> _      = Empty
+  (f :< fs) <*> xs = fmap f xs >< (fs <*> xs)
