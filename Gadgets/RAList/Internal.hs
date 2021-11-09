@@ -3,8 +3,8 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Gadgets.RAList.Internal 
-  (RAList(Empty, (:<)), empty, fromList, head, singleton, tail, toList, (!), 
-  (!?)
+  (RAList(Empty, (:<)), empty, fromList, head, singleton, tail, toList, update, 
+  (!), (!?)
 ) where
 
 import           Data.Bifunctor (second)
@@ -71,6 +71,19 @@ infixl 8 !?
         s = size t
     go _              _ = Nothing
 
+-- | Updates the RAList at the given index. If the index is out of bound,
+-- nothing happens.
+update :: RAList a -> Int -> a -> RAList a
+update (RAList ts) i x = RAList $ go ts i
+  where
+    go (Nothing : ts) i = Nothing : go ts i
+    go (Just t  : ts) i
+      | i < s     = Just (treeUpdate t i x) : ts
+      | otherwise = go ts (i - s)
+      where
+        s = size t
+    go _              _ = []
+
 -- | Prepending an element to a @RAList@.
 -- 
 -- We can prove that the amortised cost of (<:) is O(1):
@@ -109,16 +122,16 @@ raSplit (RAList ts) = second RAList <$> go Nothing ts
 data Tree a = Leaf a | Tree Int (Tree a) (Tree a)
   deriving (Eq, Show)
 
--- | Calculate the size of a Tree.
+-- | Calculates the size of a Tree.
 size :: Tree a -> Int
 size (Leaf _)     = 1
 size (Tree n _ _) = n
 
--- | Combine two Trees.
+-- | Combines two Trees.
 node :: Tree a -> Tree a -> Tree a
 node l r = Tree (size l + size r) l r
 
--- | Get element at the given index of a Tree.
+-- | Gets element at the given index of a Tree.
 indexAt :: Tree a -> Int -> a
 indexAt (Leaf x)     0 = x
 indexAt (Tree _ l r) i
@@ -128,7 +141,17 @@ indexAt (Tree _ l r) i
     ls = size l
 indexAt _            _ = undefined
 
--- | flatten a Tree to a [].
+-- | Updates the ith element of the Tree.
+treeUpdate :: Tree a -> Int -> a -> Tree a
+treeUpdate (Leaf _)     0 x = Leaf x
+treeUpdate (Leaf a)     _ _ = Leaf a
+treeUpdate (Tree n l r) i x
+  | i < ls    = Tree n (treeUpdate l i x) r
+  | otherwise = Tree n l (treeUpdate r (i - ls) x)
+  where
+    ls = size l
+
+-- | flattens a Tree to a [].
 flatten :: Tree a -> [a]
 flatten t = go t []
   where
