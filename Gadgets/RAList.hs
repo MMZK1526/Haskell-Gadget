@@ -1,16 +1,16 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Gadgets.RAList (
-  RAList(Empty, (:<)), empty, fromList, head, modify, singleton, tail, toList,
-  update, update', (!), (!?), (><)
+  RAList(Empty, (:<)), empty, fromList, head, length, modify, singleton, tail,
+  toList, update, update', (!), (!?), (><)
 ) where
 
-import           Gadgets.RAList.Internal 
-  (RAList(..), empty, fromList, head, modify, singleton, tail, toList, update, 
-  update', (!), (!?), (><))
+import           Gadgets.RAList.Internal
+  (RAList(..), empty, fromList, head, length, modify, singleton, tail, toList,
+   update, update', (!), (!?), (><))
 import           Data.Foldable (fold)
 import           Gadgets.RAList.IsList ()
-import           Prelude hiding (head, tail)
+import           Prelude hiding (head, length, tail)
 
 instance Functor RAList where
   fmap _ Empty     = Empty

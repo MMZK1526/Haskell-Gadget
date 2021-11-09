@@ -3,24 +3,24 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Gadgets.RAList.Internal
-  (RAList(Empty, (:<)), empty, fromList, head, modify, singleton, tail, toList,
-  update, update', (!), (!?), (><)
+  (RAList(Empty, (:<)), empty, fromList, head, length, modify, singleton, tail,
+  toList, update, update', (!), (!?), (><)
 ) where
 
 import           Control.Monad (ap)
 import           Data.Bifunctor (second)
-import           Data.Foldable (Foldable(..))
+import           Data.Foldable (Foldable(toList))
 import           Data.Maybe (fromJust, isJust)
-import           Prelude hiding (head, tail)
+import           Prelude hiding (head, length, tail)
 
 -- | Random Access List with amortised O(1) prepending and O(log n) random
 -- access.
-newtype RAList a = RAList [Maybe (Tree a)]
+data RAList a = RAList Int! [Maybe (Tree a)]
   deriving (Eq, Show)
 
 -- | A bidirectional pattern synonym matching an empty @RAList@.
 pattern Empty :: RAList a
-pattern Empty = RAList []
+pattern Empty = RAList 0 []
 
 -- | A bidirectional pattern synonym for a non-empty @RAList@. Equivalent to
 -- (:) for ordinary lists. Amortised O(1).
@@ -34,23 +34,27 @@ instance Foldable RAList where
   foldr _ a Empty      = a
   foldr f a (x :< xs)  = f x (foldr f a xs)
 
-  toList (RAList ts) = concat $ flatten . fromJust <$> filter isJust ts
+  toList (RAList _ ts) = concat $ flatten . fromJust <$> filter isJust ts
 
 -- | An empty @RAList@.
 empty :: RAList a
 empty = Empty
 
--- | Gets the first element from a @RAList@. Amortised O(1).
-head :: RAList a -> a
-head = fst . fromJust . raSplit
-
 -- | Construct a @RAList@ from a [].
 fromList :: [a] -> RAList a
 fromList = foldr (:<) Empty
 
+-- | Gets the first element from a @RAList@. Amortised O(1).
+head :: RAList a -> a
+head = fst . fromJust . raSplit
+
+-- | Gets the length of a @RAList@. O(1).
+length :: RAList a -> Int
+length (RAList l _) = l
+
 -- | @RAList@ from a singleton.
 singleton :: a -> RAList a
-singleton a = RAList [Just $ Leaf a]
+singleton a = RAList 1 [Just $ Leaf a]
 
 -- | Gets but the first element of a @RAList@. Amortised O(1).
 tail :: RAList a -> RAList a
@@ -64,7 +68,7 @@ infixl 9 !
 -- | Safely accesses the ith element of a @RAList@. O(log n).
 infixl 8 !?
 (!?) :: RAList a -> Int -> Maybe a
-RAList ts !? i = go ts i
+RAList _ ts !? i = go ts i
   where
     go (Nothing : ts) i = go ts i
     go (Just t  : ts) i
@@ -88,7 +92,7 @@ modify = ((. const) .) . flip . update
 -- | Updatesthe RAList at the given index by an updating function. If the index
 -- is out of bound, nothing happens. O(log n).
 update :: RAList a -> (a -> a) -> Int -> RAList a
-update (RAList ts) f i = RAList $ go ts i
+update (RAList l ts) f i = RAList l $ go ts i
   where
     go (Nothing : ts) i = Nothing : go ts i
     go (Just t  : ts) i
@@ -119,7 +123,7 @@ update' = (. ap seq) . update
 -- consecutive applications of @"cons"@, the total cost is no greater than 2n,
 -- and the amortised cost for each operation is 2n / n = O(1).
 cons :: a -> RAList a -> RAList a
-cons a (RAList ts) = RAList $ go (Leaf a) ts
+cons a (RAList l ts) = RAList (l + 1) $ go (Leaf a) ts
   where
     go t []             = [Just t]
     go t (Nothing : ts) = Just t : ts
@@ -127,7 +131,7 @@ cons a (RAList ts) = RAList $ go (Leaf a) ts
 
 -- | Splits a RAList into its first element and rest.
 raSplit :: RAList a -> Maybe (a, RAList a)
-raSplit (RAList ts) = second RAList <$> go Nothing ts
+raSplit (RAList l ts) = second (RAList (l - 1)) <$> go Nothing ts
   where
     go (Just (Leaf a)) ts      = Just (a, ts)
     go (Just (Tree _ t t')) ts = go (Just t) (Just t' : ts)
