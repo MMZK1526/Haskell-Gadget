@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
-module Gadgets.RAList.Internal 
+module Gadgets.RAList.Internal
   (RAList(Empty, (:<)), empty, fromList, head, modify, singleton, tail, toList,
   update, update', (!), (!?)
 ) where
@@ -13,7 +13,7 @@ import           Data.Foldable (Foldable(..))
 import           Data.Maybe (fromJust, isJust)
 import           Prelude hiding (head, tail)
 
--- | Random Access List with amortised O(1) prepending and O(log n) random 
+-- | Random Access List with amortised O(1) prepending and O(log n) random
 -- access.
 newtype RAList a = RAList [Maybe (Tree a)]
   deriving (Eq, Show)
@@ -95,15 +95,15 @@ update' :: RAList a -> (a -> a) -> Int -> RAList a
 update' = (. ap seq) . update
 
 -- | Prepending an element to a @RAList@.
--- 
+--
 -- We can prove that the amortised cost of (<:) is O(1):
 --
 -- For any @RAList@ ts, define @size ts := length $ filter isJust ts@.
--- 
+--
 -- Since node is O(1), the real cost for a @(<:)@ operation is l + 1, where l
 -- is the number of "Just"s at the beginnning of the @RAList@.
--- 
--- Define @amorCost ts = 2@. Assume size ts = t. Then if ts starts with 
+--
+-- Define @amorCost ts = 2@. Assume size ts = t. Then if ts starts with
 -- "Nothing", we have @cost ts = 1 <= 2 + t - (t + 1) = amorCost ts + size ts -
 -- size ((<:) a ts)@. Otherwise, f ts starts with l "Just"s, we have @cost ts =
 -- l + 1 <= 2 + t - (t - l + 1) = amorCost ts + size ts - size ((<:) a ts)@.
