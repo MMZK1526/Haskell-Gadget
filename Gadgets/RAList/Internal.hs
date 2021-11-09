@@ -4,7 +4,7 @@
 
 module Gadgets.RAList.Internal
   (RAList(Empty, (:<)), empty, fromList, head, modify, singleton, tail, toList,
-  update, update', (!), (!?)
+  update, update', (!), (!?), (><)
 ) where
 
 import           Control.Monad (ap)
@@ -18,11 +18,11 @@ import           Prelude hiding (head, tail)
 newtype RAList a = RAList [Maybe (Tree a)]
   deriving (Eq, Show)
 
--- | A bidirectional pattern synonym matching an empty RAList.
+-- | A bidirectional pattern synonym matching an empty @RAList@.
 pattern Empty :: RAList a
 pattern Empty = RAList []
 
--- | A bidirectional pattern synonym for a non-empty RAList. Equivalent to
+-- | A bidirectional pattern synonym for a non-empty @RAList@. Equivalent to
 -- (:) for ordinary lists. Amortised O(1).
 infixr 5 :<
 pattern (:<) :: a -> RAList a -> RAList a
@@ -36,35 +36,35 @@ instance Foldable RAList where
 
   toList (RAList ts) = concat $ flatten . fromJust <$> filter isJust ts
 
--- | An empty RAList.
+-- | An empty @RAList@.
 empty :: RAList a
 empty = Empty
 
--- | Gets the first element from a RAList. Amortised O(1).
+-- | Gets the first element from a @RAList@. Amortised O(1).
 head :: RAList a -> a
 head = fst . fromJust . raSplit
 
--- | Construct a RAList from a [].
+-- | Construct a @RAList@ from a [].
 fromList :: [a] -> RAList a
 fromList = foldr (:<) Empty
 
--- | RAList from a singleton.
+-- | @RAList@ from a singleton.
 singleton :: a -> RAList a
 singleton a = RAList [Just $ Leaf a]
 
--- | Gets but the first element of a RAList. Amortised O(1).
+-- | Gets but the first element of a @RAList@. Amortised O(1).
 tail :: RAList a -> RAList a
 tail = snd . fromJust . raSplit
 
--- | Accesses the ith element of a RAList. O(log n).
+-- | Accesses the ith element of a @RAList@. O(log n).
 infixl 9 !
 (!) :: RAList a -> Int -> a
 (!) = (fromJust .) . (!?)
 
--- | Safely accesses the ith element of a RAList. O(log n).
+-- | Safely accesses the ith element of a @RAList@. O(log n).
 infixl 8 !?
 (!?) :: RAList a -> Int -> Maybe a
-(RAList ts) !? i = go ts i
+RAList ts !? i = go ts i
   where
     go (Nothing : ts) i = go ts i
     go (Just t  : ts) i
@@ -73,6 +73,12 @@ infixl 8 !?
       where
         s = size t
     go _              _ = Nothing
+
+-- | Concatenates two @RALists@. O(n).
+infixr 5 ><
+(><) :: RAList a -> RAList a -> RAList a
+Empty >< ys     = ys
+(x :< xs) >< ys = x :< (xs >< ys)
 
 -- | Modifies the RAList at the given index. If the index is out of bound,
 -- nothing happens. O(log n).
