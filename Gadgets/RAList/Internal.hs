@@ -31,7 +31,7 @@ instance Foldable RAList where
   foldr _ a Empty      = a
   foldr f a (x :< xs)  = f x (foldr f a xs)
 
-  toList (RAList ts) = concat $ flattern . fromJust <$> filter isJust ts
+  toList (RAList ts) = concat $ flatten . fromJust <$> filter isJust ts
 
 -- | An empty RAList.
 empty :: RAList a
@@ -128,9 +128,9 @@ indexAt (Tree _ l r) i
     ls = size l
 indexAt _            _ = undefined
 
--- | Flattern a Tree to a [].
-flattern :: Tree a -> [a]
-flattern t = go t []
+-- | flatten a Tree to a [].
+flatten :: Tree a -> [a]
+flatten t = go t []
   where
     go (Leaf a) []       = [a]
     go (Leaf a) (t : ts) = a : go t ts
