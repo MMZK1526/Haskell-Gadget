@@ -22,11 +22,13 @@ newtype RAList a = RAList [Maybe (Tree a)]
 pattern Empty :: RAList a
 pattern Empty = RAList []
 
--- | A bidirectional pattern synonym for a non-empty RAList.
+-- | A bidirectional pattern synonym for a non-empty RAList. Equivalent to
+-- (:) for ordinary lists.
+infixr 5 :<
 pattern (:<) :: a -> RAList a -> RAList a
 pattern x :< xs <- (raView -> x :<: xs)
   where
-    x :< xs = x <: xs
+    x :< xs = x `cons` xs
 
 instance Foldable RAList where
   foldr _ a Empty      = a
@@ -96,23 +98,22 @@ update' = (. ap seq) . update
 
 -- | Prepending an element to a @RAList@.
 --
--- We can prove that the amortised cost of (<:) is O(1):
+-- We can prove that the amortised cost of "cons" is O(1):
 --
 -- For any @RAList@ ts, define @size ts := length $ filter isJust ts@.
 --
--- Since node is O(1), the real cost for a @(<:)@ operation is l + 1, where l
+-- Since node is O(1), the real cost for a @"cons"@ operation is l + 1, where l
 -- is the number of "Just"s at the beginnning of the @RAList@.
 --
 -- Define @amorCost ts = 2@. Assume size ts = t. Then if ts starts with
 -- "Nothing", we have @cost ts = 1 <= 2 + t - (t + 1) = amorCost ts + size ts -
--- size ((<:) a ts)@. Otherwise, f ts starts with l "Just"s, we have @cost ts =
--- l + 1 <= 2 + t - (t - l + 1) = amorCost ts + size ts - size ((<:) a ts)@.
+-- size (cons"a ts)@. Otherwise, f ts starts with l "Just"s, we have @cost ts =
+-- l + 1 <= 2 + t - (t - l + 1) = amorCost ts + size ts - size (cons a ts)@.
 -- Therefore, we have @realCost <= amortisedCost@ at all time, thus in n
--- consecutive applications of @(<:)@, the total cost is no greater than 2n,
+-- consecutive applications of @"cons"@, the total cost is no greater than 2n,
 -- and the amortised cost for each operation is 2n / n = O(1).
-infixr 5 <:
-(<:) :: a -> RAList a -> RAList a
-(<:) a (RAList ts) = RAList $ go (Leaf a) ts
+cons :: a -> RAList a -> RAList a
+cons a (RAList ts) = RAList $ go (Leaf a) ts
   where
     go t []             = [Just t]
     go t (Nothing : ts) = Just t : ts
