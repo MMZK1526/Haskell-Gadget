@@ -79,7 +79,7 @@ update (RAList ts) i x = RAList $ go ts i
     go (Nothing : ts) i = Nothing : go ts i
     go (Just t  : ts) i
       | i < s     = Just (treeUpdate t i x) : ts
-      | otherwise = go ts (i - s)
+      | otherwise = Just t : go ts (i - s)
       where
         s = size t
     go _              _ = []
