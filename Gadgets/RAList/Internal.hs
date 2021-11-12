@@ -3,8 +3,8 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Gadgets.RAList.Internal
-  (RAList(Empty, (:<)), empty, fromList, head, length, modify, singleton, tail,
-  toList, update, update', (!), (!?), (><)
+  (RAList(Empty, (:<)), empty, fromList, head, length, update, update',
+   singleton, tail, toList, adjust, adjust', (!), (!?), (><), (=:), (=:!)
 ) where
 
 import           Control.Monad (ap)
@@ -84,15 +84,33 @@ infixr 5 ><
 Empty >< ys     = ys
 (x :< xs) >< ys = x :< (xs >< ys)
 
--- | Modifies the RAList at the given index. If the index is out of bound,
--- nothing happens. O(log n).
-modify :: RAList a -> Int -> a -> RAList a
-modify = ((. const) .) . flip . update
+-- | Infix version of @update@.
+-- Example: @ ral =: 3 $ 5 @ sets the third element to five.
+-- It will produce the same RAList if the index is out of bound.
+--
+infixl 3 =:
+(=:) :: RAList a -> Int -> a -> RAList a
+(=:) = update
 
--- | Updatesthe RAList at the given index by an updating function. If the index
--- is out of bound, nothing happens. O(log n).
-update :: RAList a -> (a -> a) -> Int -> RAList a
-update (RAList l ts) f i = RAList l $ go ts i
+
+-- | The strict version of (=:). O (log n)
+infixl 3 =:!
+(=:!) :: RAList a -> Int -> a -> RAList a
+(=:!) = update'
+
+-- | Updates the RAList at the given index. If the index is out of bound,
+-- nothing happens. O(log n).
+update :: RAList a -> Int -> a -> RAList a
+update = ((. const) .) . flip . adjust
+
+-- | The strict version of "update". O(log n).
+update' :: RAList a -> Int -> a -> RAList a
+update' = ((. const) .) . flip . adjust'
+
+-- | Adjusts the RAList at the given index by an updating function. If the
+-- index is out of bound, nothing happens. O(log n).
+adjust :: RAList a -> (a -> a) -> Int -> RAList a
+adjust (RAList l ts) f i = RAList l $ go ts i
   where
     go (Nothing : ts) i = Nothing : go ts i
     go (Just t  : ts) i
@@ -102,9 +120,9 @@ update (RAList l ts) f i = RAList l $ go ts i
         s = size t
     go _              _ = []
 
--- | The strict version of "update". O(log n).
-update' :: RAList a -> (a -> a) -> Int -> RAList a
-update' = (. ap seq) . update
+-- | The strict version of "adjust". O(log n).
+adjust' :: RAList a -> (a -> a) -> Int -> RAList a
+adjust' = (. ap seq) . adjust
 
 -- | Prepends an element to a @RAList@.
 --

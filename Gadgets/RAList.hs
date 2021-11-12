@@ -1,13 +1,16 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
+-- Random Access List with amortised O(1) prepending and O(log n) random
+-- access.
+
 module Gadgets.RAList (
-  RAList(Empty, (:<)), empty, fromList, head, length, modify, singleton, tail,
-  toList, update, update', (!), (!?), (><)
+  RAList(Empty, (:<)), empty, fromList, head, length, update, update', 
+  singleton, tail, toList, adjust, adjust', (!), (!?), (><), (=:), (=:!)
 ) where
 
-import           Gadgets.RAList.Internal
-  (RAList(..), empty, fromList, head, length, modify, singleton, tail, toList,
-   update, update', (!), (!?), (><))
+import           Gadgets.RAList.Internal (
+  RAList(..), empty, fromList, head, length, update, update', singleton, tail,
+  toList, adjust, adjust', (!), (!?), (><), (=:), (=:!))
 import           Data.Foldable (fold)
 import           Gadgets.RAList.IsList ()
 import           Prelude hiding (head, length, tail)

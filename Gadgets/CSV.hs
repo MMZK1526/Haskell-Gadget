@@ -1,4 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
+
+-- Simple CSV parser.
+
 module Gadgets.CSV (CSV) where
 
 import           Control.Monad (liftM2)
