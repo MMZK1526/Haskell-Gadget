@@ -4,7 +4,6 @@ import           Control.Monad (ap)
 import           Data.Array (Array, Ix, bounds, listArray, (!), (//))
 
 -- | Making an array from a list, indexed from 0.
--- 
 fromList :: [a] -> Array Int a
 fromList xs = listArray (0, length xs - 1) xs
 
@@ -18,7 +17,6 @@ adjust' :: Ix i => Array i a -> (a -> a) -> i -> Array i a
 adjust' = (. ap seq) . adjust
 
 -- | Safe array access.
--- 
 infixr 4 !?
 (!?) :: Ix i => Array i a -> i -> Maybe a
 arr !? i 
