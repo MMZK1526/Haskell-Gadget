@@ -9,12 +9,27 @@ import           System.IO.Error
 
 import           Gadgets.Monad (void_)
 
--- | Reads all lines from @stdin@, returning a @[String]@.
+-- | Specifically catches DNE exceptions.
+--
+catchDNE :: IO a -> (IOError -> IO a) -> IO a
+catchDNE = flip handleDNE
+
+-- | Catches DNE exceptions with the file's full name (with path).
+--
+catchDNEPath :: IO a -> (Maybe FilePath -> IO a) -> IO a
+catchDNEPath = flip handleDNEPath
+
+-- | Specifically catches EOF exceptions.
+--
+catchEOF :: IO a -> (IOError -> IO a) -> IO a
+catchEOF = flip handleEOF
+
+-- | Reads all lines from @stdin@, returning a @String@.
 --
 getLines :: IO [String]
 getLines = hGetLines stdin
 
--- | Reads all lines from a handle, returning a @[String]@.
+-- | Reads all lines from a @Handle, returning a @String@.
 --
 hGetLines :: Handle -> IO [String]
 hGetLines hdl = do
@@ -89,7 +104,7 @@ putLn = putStrLn ""
 throwIOError :: IOErrorType -> String -> Maybe Handle -> Maybe FilePath -> a
 throwIOError t s h p = throw $ mkIOError t s h p
 
--- | Making and throwing an @IOError@ without file path and handle.
+-- | Making and throwing an @IOError@ without file path and [Handle].
 -- 
 throwIOError_ :: IOErrorType -> String -> a
 throwIOError_ t s = throwIOError t s Nothing Nothing
