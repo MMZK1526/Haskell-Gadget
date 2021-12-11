@@ -1,10 +1,12 @@
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Gadgets.Set where
 
-import           Data.Set (Set, empty)
+import           Data.Set (Set)
+import qualified Data.Set as S
 
 pattern Empty :: Set a
-pattern Empty <- empty
+pattern Empty <- (S.null -> True)
   where
-    Empty = empty
+    Empty = S.empty
