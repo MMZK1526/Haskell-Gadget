@@ -4,7 +4,7 @@
 module Gadgets.Array.Unboxed.ST where
 
 import           Control.Monad.ST (ST)
-import           Data.Array.Unboxed (IArray, UArray)
+import           Data.Array.Unboxed (IArray, Ix, UArray)
 import qualified Data.Array.ST as A
 import qualified Data.Array.Unsafe as A
 import qualified Gadgets.Array.Unboxed as A
@@ -20,28 +20,28 @@ fromList = thaw . A.fromList
 
 -- | This is the same as the default @freeze@ function, but it has specified
 --  type to avoid explicit signature binding.
-freeze :: (IArray UArray a, MArray (STUArray s) a (ST s))
-       => STUArray s Int a
-       -> ST s (UArray Int a)
+freeze :: (IArray UArray a, MArray (STUArray s) a (ST s), Ix i)
+       => STUArray s i a
+       -> ST s (UArray i a)
 freeze = A.freeze
 
 -- | This is the same as the default @thaw@ function, but it has specified type
 -- to avoid explicit signature binding.
-thaw :: (IArray UArray a, MArray (STUArray s) a (ST s))
-     => UArray Int a
-     -> ST s (STUArray s Int a)
+thaw :: (IArray UArray a, MArray (STUArray s) a (ST s), Ix i)
+     => UArray i a
+     -> ST s (STUArray s i a)
 thaw = A.thaw
 
 -- | This is the same as the default @unsafeFreeze@ function, but it has
 -- specified type to avoid explicit signature binding.
-unsafeFreeze :: (IArray UArray a, MArray (STUArray s) a (ST s))
-             => STUArray s Int a
-             -> ST s (UArray Int a)
+unsafeFreeze :: (IArray UArray a, MArray (STUArray s) a (ST s), Ix i)
+             => STUArray s i a
+             -> ST s (UArray i a)
 unsafeFreeze = A.unsafeFreeze
 
 -- | This is the same as the default @unsafeThaw@ function, but it has specified
 -- type to avoid explicit signature binding.
-unsafeThaw :: (IArray UArray a, MArray (STUArray s) a (ST s))
-           => UArray Int a
-           -> ST s (STUArray s Int a)
+unsafeThaw :: (IArray UArray a, MArray (STUArray s) a (ST s), Ix i)
+           => UArray i a
+           -> ST s (STUArray s i a)
 unsafeThaw = A.unsafeThaw
