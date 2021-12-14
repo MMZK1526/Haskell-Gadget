@@ -7,6 +7,7 @@ type Counter a = M.Map a Integer
 
 -- | Add the value at the key by n.
 addN :: Ord a => a -> Integer -> Counter a -> Counter a
+addN _ 0 = id
 addN e n = M.insertWith (const (+ n)) e n
 
 -- | Remove the key from the "Counter".
