@@ -1,6 +1,7 @@
 module Gadgets.Counter where
 
 import qualified Data.Map as M
+import           Data.Maybe (fromMaybe)
 
 type Counter a = M.Map a Integer
 
@@ -24,6 +25,20 @@ fromList = foldr inc empty
 inc :: Ord a => a -> Counter a -> Counter a
 inc = flip (M.insertWith (const (+ 1))) 1
 
+-- | Returns all keys of the "Counter".
+keys :: Counter a -> [a]
+keys = M.keys
+
 -- | Convert a "Counter" to pairs of elements and counts.
 toPairList :: Counter a -> [(a, Integer)]
 toPairList = M.toList
+
+infixl 9 !, !?
+
+-- | Finds the value of the given key, or zero if key is not found.
+(!) :: Ord a => Counter a -> a -> Integer
+(!) = (fromMaybe 0 .) . (M.!?)
+
+-- | Finds the value of the given key.
+(!?) :: Ord a => Counter a -> a -> Maybe Integer
+(!?) = (M.!?)
