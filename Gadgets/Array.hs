@@ -2,7 +2,7 @@ module Gadgets.Array where
 
 import           Control.Monad (ap)
 import           Data.Array 
-  (Array, Ix, array, bounds, inRange, listArray, (!), (//))
+  (Array, Ix, array, bounds, inRange, listArray, range, (!), (//))
 
 -- | Making an array from a list, indexed from 0.
 fromList :: [a] -> Array Int a
@@ -28,6 +28,11 @@ adjust arr f i = arr // [(i, f $ arr ! i)]
 -- | Strict version of "adjust".
 adjust' :: Ix i => Array i a -> (a -> a) -> i -> Array i a
 adjust' = (. ap seq) . adjust
+
+-- | Constructs an array from a function.
+{-# INLINE tabulate #-}
+tabulate :: Ix i => (i, i) -> (i -> a) -> Array i a
+tabulate (u, v) f = array (u, v) [ (i, f i) | i <- range (u, v)]
 
 -- | Safe array access.
 infixr 4 !?
