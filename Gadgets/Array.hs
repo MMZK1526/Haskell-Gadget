@@ -34,6 +34,11 @@ adjust' = (. ap seq) . adjust
 tabulate :: Ix i => (i, i) -> (i -> a) -> Array i a
 tabulate (u, v) f = array (u, v) [ (i, f i) | i <- range (u, v)]
 
+-- | Strict version of "tabulate".
+{-# INLINE tabulate' #-}
+tabulate' :: Ix i => (i, i) -> (i -> a) -> Array i a
+tabulate' = (. ap seq) . tabulate
+
 -- | Safe array access.
 infixr 4 !?
 (!?) :: Ix i => Array i a -> i -> Maybe a
