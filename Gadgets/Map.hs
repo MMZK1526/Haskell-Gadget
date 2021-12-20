@@ -1,7 +1,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module GadgetM.Map where
+module Gadgets.Map where
 
 import           Data.Map (Map)
 import qualified Data.Map as M
