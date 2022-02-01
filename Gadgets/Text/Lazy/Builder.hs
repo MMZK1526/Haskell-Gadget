@@ -6,6 +6,12 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Lazy.Builder as B
 
+-- | A "Builder" encapsulated in a "StateT".
+type TextBuilderT m a = StateT B.Builder m a
+
+-- | A "Builder" encapsulated in a "State".
+type TextBuilder a = State B.Builder a
+
 -- | A type class of converting a type to a Lazy "Builder" of "Text"s.
 class Buildable a where
   build :: a -> B.Builder
@@ -27,17 +33,17 @@ instance Buildable LT.Text where
   {-# INLINE build #-}
 
 -- | Append a "Buildable" to the "Builder".
-append :: Buildable a => Monad m => a -> StateT B.Builder m ()
+append :: Buildable a => Monad m => a -> TextBuilderT m ()
 append = modify . flip (<>) . build
 {-# INLINE append #-}
 
 -- | Build a Lazy "Text" in a monadic environment.
-runBuilderT :: Monad m => StateT B.Builder m a -> m LT.Text
+runBuilderT :: Monad m => TextBuilderT m a -> m LT.Text
 runBuilderT = fmap B.toLazyText . flip execStateT mempty
 {-# INLINE runBuilderT #-}
 
 -- | Build a Lazy "Text" in a pure environment.
-runBuilder :: State B.Builder a -> LT.Text
+runBuilder :: TextBuilder a -> LT.Text
 runBuilder = B.toLazyText . flip execState mempty
 {-# INLINE runBuilder #-}
 
