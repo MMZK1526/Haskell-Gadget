@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 
-module ND where
+module Gadgets.ND where
 
 import           Control.Monad
 import           Data.Function
