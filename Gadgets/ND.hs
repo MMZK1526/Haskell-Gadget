@@ -1,6 +1,7 @@
+{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Gadgets.ND where
+module ND where
 
 import           Control.Monad
 import           Data.Function
@@ -10,8 +11,11 @@ import           Data.Void
 type TOP     = ()
 type BOTTOM  = Void
 type Not a   = a -> BOTTOM
+infixl 3 &&
 type a && b  = (a, b)
+infixl 2 ||
 type a || b  = Either a b
+infixr 1 <->
 type a <-> b = (a -> b) && (b -> a)
 
 type ND = Identity
@@ -38,6 +42,68 @@ example1 aAb a2c b2d = do
 -- implemented with our rules (here we cheated with "undefined").
 example2 :: a -> (c -> a) -> ND c
 example2 a c2a = undefined
+
+-- | A function that proves the equivalence of currying:
+-- "(a && b -> c) <-> (a -> b -> c)".
+柯里化等价 :: ND ((a && b -> c) <-> (a -> b -> c))
+柯里化等价 = 等价介入 往 返
+  where
+    往 甲且乙蕴含丙 = 蕴含介入 $ \甲 -> 蕴含介入 $ \乙 -> do
+      甲且乙 <- 且介入 甲 乙
+      丙 <- 甲且乙蕴含丙 `蕴含去除` 甲且乙
+      我滴任务宛城啦 丙
+    返 甲蕴含乙蕴含丙 = 蕴含介入 $ \甲且乙 -> do
+      (甲, 乙) <- 且去除 甲且乙
+      乙蕴含丙 <- 甲蕴含乙蕴含丙 `蕴含去除` 甲
+      丙 <- 乙蕴含丙 `蕴含去除` 乙
+      我滴任务宛城啦 丙
+
+-- | Pierce's Law: "((a -> b) -> a) -> a". This is equivalent to LEM.
+pierceLaw :: ND (((a -> b) -> a) -> a)
+pierceLaw = ifI $ \_a1 {- (a -> b) -> a -} -> do
+  _p1 {- a || !a -} <- lem
+  orE _p1 tick $ \_a2 {- !a -} -> do
+    _p2 {- a -> b -} <- ifI $ \_a3 {- a -} -> do
+      bottom <- bottomI _a3 _a2
+      bottomE bottom
+    ifE _a1 _p2
+
+type DeMorgan1 a b = Not (a && b) <-> (Not a || Not b)
+type DeMorgan2 a b = Not (a || b) <-> (Not a && Not b)
+-- | De Morgan's Law: "(!(a && b) <-> !a || !b) && (!(a || b) <-> !a && !b)".
+deMorganLaw :: ND (DeMorgan1 a b && DeMorgan2 a b)
+deMorganLaw = join $ liftM2 andI (iffI dm1Fore dm1Back) (iffI dm2Fore dm2Back)
+  where
+    dm1Fore notOfaAb = do
+      aOna <- lem
+      orE aOna 
+        (\a -> do
+          nb         <- notI $ \b -> do
+            aAb <- andI a b
+            bottomI aAb notOfaAb
+          (_, naOnb) <- orI nb
+          tick naOnb)
+        (\na -> do
+          (naOnb, _) <- orI na
+          tick naOnb)
+    dm1Back naOnb    = orE naOnb 
+      (\na -> notI (\aAb -> do
+        (a, _) <- andE aAb
+        bottomI a na))
+      (\nb -> notI (\aAb -> do
+        (_, b) <- andE aAb
+        bottomI b nb))
+    dm2Fore notOfaOb = do
+      na <- notI $ \a -> do
+        (aOb, _) <- orI a
+        bottomI aOb notOfaOb
+      nb <- notI $ \b -> do
+        (_, aOb) <- orI b
+        bottomI aOb notOfaOb
+      andI na nb
+    dm2Back naAnb    = do
+      (na, nb) <- andE naAnb
+      notI $ \aOb -> orE aOb (notE na) (notE nb)
 
 
 --------------------------------------------------------------------------------
