@@ -4,6 +4,9 @@ import           Control.Applicative (liftA2)
 import           Control.Monad.Trans.Writer 
   (WriterT, Writer, censor, runWriter, runWriterT)
 
+instance MonadFail Identity where
+  fail = error
+
 -- | Clear the log of a @WriterT@.
 -- 
 clear :: (Monoid w, Monad m) => WriterT w m a -> WriterT w m a
