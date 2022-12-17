@@ -2,12 +2,16 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Memoise where
+module Gadgets.Memoise where
 
-import           Control.Monad.Identity
+import           Control.Monad
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.State
 import           Data.Bifunctor
+import           Data.Functor.Identity
+import           Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HM
+import           Data.Hashable
 import           Data.Map (Map)
 import qualified Data.Map as M
 
@@ -29,6 +33,15 @@ class Table t where
   -- nothing.
   clearTable :: t -> Key t -> t
   clearTable = const
+
+instance Hashable k => Table (HashMap k v) where
+  type Key (HashMap k v)   = k
+  type Value (HashMap k v) = v
+
+  emptyTable = HM.empty
+  readTable  = (HM.!?)
+  writeTable = flip (flip . HM.insert)
+  clearTable = flip HM.delete
 
 instance Ord k => Table (Map k v) where
   type Key (Map k v)   = k
@@ -123,10 +136,12 @@ apply' k = do
 -- | Replace the memoised table.
 setTable :: Monad m => Table t => t -> MemoisedT t m ()
 setTable t = modify (\mem -> mem { getTable = t })
+{-# INLINE setTable #-}
 
 -- | Add a pair of (key, value) entry into the memoised table.
 addEntry :: Monad m => Table t => Key t -> Value t -> MemoisedT t m ()
 addEntry k v = modify (\mem -> mem { getTable = writeTable (getTable mem) k v })
+{-# INLINE addEntry #-}
 
 -- | Memoised fibonacci sequence.
 fibMem :: Monad m => MemoisedFuncT [(Integer, Integer)] m
