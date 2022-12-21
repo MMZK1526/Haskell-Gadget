@@ -13,10 +13,10 @@ type STUArray = A.STUArray
 type MArray   = A.MArray
 
 -- | Making an array from a list, indexed from 0.
-fromList :: (IArray UArray e, MArray (STUArray s) e (ST s)) 
-         => [e] 
-         -> ST s (STUArray s Int e)
-fromList = thaw . A.fromList
+fromListST :: (IArray UArray e, MArray (STUArray s) e (ST s)) 
+           => [e] 
+           -> ST s (STUArray s Int e)
+fromListST = thaw . A.fromList
 
 -- | This is the same as the default @freeze@ function, but it has specified
 --  type to avoid explicit signature binding.
