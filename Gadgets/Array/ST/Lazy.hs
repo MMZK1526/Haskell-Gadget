@@ -14,6 +14,14 @@ type STArray = A.STArray
 fromListST :: [e] -> ST s (STArray s Int e)
 fromListST = thaw . A.fromList
 
+-- | Making an array from a bound and a default value.
+newArray :: Ix i => (i, i) -> a -> ST s (STArray s i a)
+newArray = A.newArray
+
+-- | Making an array from a bound with undefined value.
+newArray_ :: Ix i => (i, i) -> ST s (STArray s i a)
+newArray_ = A.newArray_
+
 -- | This is the same as the default @freeze@ function, but it has specified
 -- type to avoid explicit signature binding.
 freeze :: Ix i => STArray s i a -> ST s (Array i a)
