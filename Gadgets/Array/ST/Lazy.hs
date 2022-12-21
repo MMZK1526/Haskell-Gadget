@@ -11,8 +11,8 @@ import qualified Gadgets.Array as A
 type STArray = A.STArray
 
 -- | Making an array from a list, indexed from 0.
-fromList :: [e] -> ST s (STArray s Int e)
-fromList = thaw . A.fromList
+fromListST :: [e] -> ST s (STArray s Int e)
+fromListST = thaw . A.fromList
 
 -- | This is the same as the default @freeze@ function, but it has specified
 -- type to avoid explicit signature binding.
